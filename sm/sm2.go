@@ -8,6 +8,7 @@ import (
 	"io"
 )
 
+// NewSM2Key return private key, public key
 func NewSM2Key(random io.Reader) (string, string, error) {
 	if random == nil {
 		random = rand.Reader

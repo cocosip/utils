@@ -26,6 +26,13 @@ func GoTime(t *time.Time) time.Time {
 	return *t
 }
 
+func GoTimeDuration(duration *time.Duration) time.Duration {
+	if duration == nil {
+		return 0
+	}
+	return *duration
+}
+
 func GoInt(i *int) int {
 	if i == nil {
 		return 0
@@ -75,6 +82,10 @@ func GoPtrBool(b bool) *bool {
 
 func GoPtrTime(t time.Time) *time.Time {
 	return &t
+}
+
+func GoPtrTimeDuration(duration time.Duration) *time.Duration {
+	return &duration
 }
 
 func GoPtrInt(i int) *int {
