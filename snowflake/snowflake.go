@@ -46,6 +46,7 @@ func New(epoch int64, workerIdBits int, datacenterIdBits int, sequenceBits int, 
 		workerIdBits:     workerIdBits,
 		datacenterIdBits: datacenterIdBits,
 		sequenceBits:     sequenceBits,
+		workerIdShift:    sequenceBits,
 		workerId:         workerId,
 		datacenterId:     datacenterId,
 		m:                &sync.Mutex{},
@@ -55,8 +56,8 @@ func New(epoch int64, workerIdBits int, datacenterIdBits int, sequenceBits int, 
 	id.timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits
 	id.sequenceMask = -1 ^ (-1 << sequenceBits)
 
-	maxWorkerId := -1 ^ (-1 << workerIdBits)
-	maxDatacenterId := -1 ^ (-1 << datacenterIdBits)
+	maxWorkerId := int64(-1 ^ (-1 << workerIdBits))
+	maxDatacenterId := int64(-1 ^ (-1 << datacenterIdBits))
 	if workerId > maxWorkerId || workerId < 0 {
 		return nil, fmt.Errorf("worker Id can't be greater than %d or less than 0", maxWorkerId)
 	}
@@ -103,7 +104,7 @@ func (d *DistributeId) NextStringId() (string, error) {
 }
 
 func (d *DistributeId) timeGen() int64 {
-	return time.Now().Unix()
+	return time.Now().UnixMilli()
 }
 
 // tilNextMillis 阻塞到下一个毫秒，直到获得新的时间戳

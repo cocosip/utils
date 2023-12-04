@@ -7,8 +7,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
-	glog "gorm.io/gorm/logger"
-	"log/slog"
 	"time"
 )
 
@@ -73,25 +71,4 @@ func NewDB(dialector gorm.Dialector, opts ...gorm.Option) (*gorm.DB, error) {
 	sql.SetConnMaxIdleTime(10 * time.Minute)
 
 	return conn, nil
-}
-
-func NewGormLoggerWithSlog(logger *slog.Logger, opts ...func(*glog.Config)) glog.Interface {
-	c := &glog.Config{
-		SlowThreshold:             1000 * time.Millisecond,
-		Colorful:                  true,
-		IgnoreRecordNotFoundError: true,
-		LogLevel:                  glog.Warn,
-		ParameterizedQueries:      true,
-	}
-
-	for _, fn := range opts {
-		fn(c)
-	}
-
-	l := slog.LevelInfo
-	if logger.Enabled(nil, slog.LevelDebug) {
-		l = slog.LevelDebug
-	}
-
-	return glog.New(slog.NewLogLogger(logger.Handler(), l), *c)
 }

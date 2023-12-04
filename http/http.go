@@ -14,43 +14,73 @@ var (
 	DefaultHttpClientTimeout = time.Second * 100
 )
 
-func NewProxyHttpClient(proxyURL string, username string, password string, timeouts ...time.Duration) (*http.Client, error) {
-	timeout := DefaultHttpClientTimeout
-	if len(timeouts) > 0 {
-		timeout = timeouts[0]
+type TransportOption func(transport *http.Transport) error
+
+type ClientOption func(*http.Client) error
+
+func WithTimeout(duration time.Duration) ClientOption {
+	return func(client *http.Client) error {
+		client.Timeout = duration
+		return nil
 	}
-
-	cli := &http.Client{
-		Timeout: timeout,
-	}
-
-	if strings.TrimSpace(proxyURL) != "" {
-		u, err := url.Parse(proxyURL)
-		if err != nil {
-			return nil, fmt.Errorf("parse proxyURL error: %s; proxyURL = %s ", err.Error(), proxyURL)
-		}
-
-		if strings.TrimSpace(username) != "" && strings.TrimSpace(password) != "" {
-			u.User = url.UserPassword(username, password)
-		}
-
-		transport := http.DefaultTransport.(*http.Transport).Clone()
-		transport.Proxy = http.ProxyURL(u)
-		cli.Transport = transport
-	}
-
-	return cli, nil
 }
 
-func NewTimeoutHttpClient(timeouts ...time.Duration) *http.Client {
-	timeout := DefaultHttpClientTimeout
-	if len(timeouts) > 0 {
-		timeout = timeouts[0]
+func WithTransport(opts ...TransportOption) ClientOption {
+	return func(client *http.Client) error {
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+		for _, opt := range opts {
+			if err := opt(transport); err != nil {
+				return err
+			}
+
+		}
+		client.Transport = transport
+		return nil
+	}
+}
+
+func WithCheckRedirect(f func(req *http.Request, via []*http.Request) error) ClientOption {
+	return func(client *http.Client) error {
+		client.CheckRedirect = f
+		return nil
+	}
+}
+
+func WithCookieJar(jar http.CookieJar) ClientOption {
+	return func(client *http.Client) error {
+		client.Jar = jar
+		return nil
+	}
+}
+
+func WithTransportProxyURL(proxyURL string, username string, password string) TransportOption {
+	return func(transport *http.Transport) error {
+		if proxyURL != "" {
+			u, err := url.Parse(proxyURL)
+			if err != nil {
+				return err
+			}
+			if strings.TrimSpace(username) != "" && strings.TrimSpace(password) != "" {
+				u.User = url.UserPassword(username, password)
+			}
+			transport.Proxy = http.ProxyURL(u)
+		}
+		return nil
+	}
+}
+
+func NewHttpClient(opts ...ClientOption) (*http.Client, error) {
+	client := &http.Client{
+		Timeout: DefaultHttpClientTimeout,
 	}
 
-	return &http.Client{
-		Timeout: timeout,
+	for _, opt := range opts {
+		if err := opt(client); err != nil {
+			return nil, err
+		}
 	}
+
+	return client, nil
 }
 
 func SetBearerAuth(request *http.Request, token string) {

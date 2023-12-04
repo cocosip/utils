@@ -14,6 +14,6 @@ func SHA1(s string) string {
 
 func SHA256(s string) string {
 	b := []byte(s)
-	h := sha256.New()
-	return fmt.Sprintf("%x", h.Sum(b))
+	h := sha256.Sum256(b)
+	return fmt.Sprintf("%x", h)
 }

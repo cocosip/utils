@@ -29,21 +29,77 @@ func newDefaultConfig() *Config {
 	}
 }
 
-func NewFileLogger(opts ...func(*Config)) io.Writer {
-	cfg := newDefaultConfig()
+type LogOption func(c *Config)
+
+func WithConfig(cfg *Config) LogOption {
+	return func(c *Config) {
+		c.Filename = cfg.Filename
+		c.MaxSize = cfg.MaxSize
+		c.MaxBackups = cfg.MaxBackups
+		c.MaxAge = cfg.MaxAge
+		c.LocalTime = cfg.LocalTime
+		c.Compress = cfg.Compress
+		c.Stdout = cfg.Stdout
+	}
+}
+
+func WithFilename(filename string) LogOption {
+	return func(config *Config) {
+		config.Filename = filename
+	}
+}
+
+func WithMaxSize(maxSize int) LogOption {
+	return func(c *Config) {
+		c.MaxSize = maxSize
+	}
+}
+
+func WithMaxBackups(maxBackups int) LogOption {
+	return func(c *Config) {
+		c.MaxBackups = maxBackups
+	}
+}
+
+func WithMaxAge(maxAge int) LogOption {
+	return func(c *Config) {
+		c.MaxAge = maxAge
+	}
+}
+
+func WithLocalTime(localTime bool) LogOption {
+	return func(c *Config) {
+		c.LocalTime = localTime
+	}
+}
+
+func WithCompress(compress bool) LogOption {
+	return func(c *Config) {
+		c.Compress = compress
+	}
+}
+
+func WithStdout(stdout bool) LogOption {
+	return func(c *Config) {
+		c.Stdout = stdout
+	}
+}
+
+func NewFileLogger(opts ...LogOption) io.Writer {
+	c := newDefaultConfig()
 	for _, fn := range opts {
-		fn(cfg)
+		fn(c)
 	}
 	out := &lumberjack.Logger{
-		Filename:   cfg.Filename,
-		MaxSize:    cfg.MaxSize,
-		MaxBackups: cfg.MaxBackups,
-		MaxAge:     cfg.MaxAge,
-		LocalTime:  cfg.LocalTime,
-		Compress:   cfg.Compress,
+		Filename:   c.Filename,
+		MaxSize:    c.MaxSize,
+		MaxBackups: c.MaxBackups,
+		MaxAge:     c.MaxAge,
+		LocalTime:  c.LocalTime,
+		Compress:   c.Compress,
 	}
 
-	if cfg.Stdout {
+	if c.Stdout {
 		return io.MultiWriter(os.Stdout, out)
 	}
 	return out
