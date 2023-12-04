@@ -29,6 +29,22 @@ func UInt(i uint) *uint {
 	return &i
 }
 
+func Int8(i int8) *int8 {
+	return &i
+}
+
+func UInt8(i uint8) *uint8 {
+	return &i
+}
+
+func Int16(i int16) *int16 {
+	return &i
+}
+
+func UInt16(i uint16) *uint16 {
+	return &i
+}
+
 func Int32(i int32) *int32 {
 	return &i
 }
@@ -59,21 +75,42 @@ func GoBool(b *bool) bool {
 	return *b
 }
 
-func GoTime(t *time.Time) time.Time {
-	if t == nil {
-		return time.Time{}
-	}
-	return *t
-}
-
-func GoTimeDuration(duration *time.Duration) time.Duration {
-	if duration == nil {
+func GoInt(i *int) int {
+	if i == nil {
 		return 0
 	}
-	return *duration
+	return *i
 }
 
-func GoInt(i *int) int {
+func GoUInt(i *uint) uint {
+	if i == nil {
+		return 0
+	}
+	return *i
+}
+
+func GoInt8(i *int8) int8 {
+	if i == nil {
+		return 0
+	}
+	return *i
+}
+
+func GoUInt8(i *uint8) uint8 {
+	if i == nil {
+		return 0
+	}
+	return *i
+}
+
+func GoInt16(i *int16) int16 {
+	if i == nil {
+		return 0
+	}
+	return *i
+}
+
+func GoUInt16(i *uint16) uint16 {
 	if i == nil {
 		return 0
 	}
@@ -108,22 +145,20 @@ func GoUInt64(i *uint64) uint64 {
 	return *i
 }
 
+func GoTime(t *time.Time) time.Time {
+	if t == nil {
+		return time.Time{}
+	}
+	return *t
+}
+
+func GoTimeDuration(duration *time.Duration) time.Duration {
+	if duration == nil {
+		return 0
+	}
+	return *duration
+}
+
 func IsNil(v interface{}) bool {
 	return v == nil || reflect.ValueOf(v).IsNil()
-}
-
-func GoPtrString(s string) *string {
-	return &s
-}
-
-func GoPtrBool(b bool) *bool {
-	return &b
-}
-
-func GoPtrTime(t time.Time) *time.Time {
-	return &t
-}
-
-func GoPtrTimeDuration(duration time.Duration) *time.Duration {
-	return &duration
 }
