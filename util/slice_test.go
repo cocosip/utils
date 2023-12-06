@@ -54,3 +54,34 @@ func TestDistinctString(t *testing.T) {
 	sort.Strings(s)
 	assert.Equal(t, "abc", ss[0], "the first is not abc")
 }
+
+func TestFirstOrDefault(t *testing.T) {
+	s := []string{
+		"a",
+		"b",
+		"c",
+	}
+
+	v, ok := FirstOrDefault(s)
+	assert.True(t, ok, "first or default not ok")
+	assert.Equal(t, "a", v, "first or default value not equal 'a'")
+}
+
+func TestLastOrDefault(t *testing.T) {
+	s := []string{
+		"a",
+		"b",
+		"c",
+	}
+
+	v, ok := LastOrDefault(s)
+	assert.True(t, ok, "first or default not ok")
+	assert.Equal(t, "c", v, "first or default value not equal 'c'")
+
+	var s2 []string
+
+	v2, ok := LastOrDefault(s2)
+	assert.False(t, ok, "last or default error")
+	assert.Equal(t, "", v2, "last or default value not equal empty")
+
+}

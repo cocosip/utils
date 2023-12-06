@@ -20,3 +20,19 @@ func Distinct[T SliceComparableType[T]](items []T) []T {
 	}
 	return r
 }
+
+func FirstOrDefault[T SliceComparableType[T]](items []T) (T, bool) {
+	var item T
+	if len(items) > 0 {
+		return items[0], true
+	}
+	return item, false
+}
+
+func LastOrDefault[T SliceComparableType[T]](items []T) (T, bool) {
+	var item T
+	if len(items) > 0 {
+		return items[len(items)-1], true
+	}
+	return item, false
+}
