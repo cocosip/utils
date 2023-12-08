@@ -1,6 +1,6 @@
 module github.com/cocosip/utils
 
-go 1.21.3
+go 1.21
 
 require (
 	github.com/kardianos/service v1.2.2
