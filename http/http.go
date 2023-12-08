@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -100,7 +101,7 @@ func GetForwardedFor(header http.Header) []string {
 	return hosts
 }
 
-func ReadJsonResponse(response *http.Response, resp interface{}) error {
+func ReadResponseJson(response *http.Response, resp interface{}) error {
 	b, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
@@ -114,4 +115,10 @@ func ReadJsonResponse(response *http.Response, resp interface{}) error {
 		return fmt.Errorf("unmarshal error = %s; body = %s", err, string(b))
 	}
 	return nil
+}
+
+func CloseResponseBody(response *http.Response) {
+	if err := response.Body.Close(); err != nil {
+		slog.Error("close http response body error -> %s", err.Error())
+	}
 }
