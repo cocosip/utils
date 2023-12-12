@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -126,4 +127,19 @@ func NewSlogJsonLogger(w io.Writer, opts ...func(*slog.HandlerOptions)) *slog.Lo
 		fn(o)
 	}
 	return slog.New(slog.NewJSONHandler(w, o))
+}
+
+func GetSlogLevel(s string) slog.Level {
+	switch strings.ToUpper(s) {
+	case "DEBUG":
+		return slog.LevelDebug
+	case "INFO":
+		return slog.LevelInfo
+	case "WARN":
+		return slog.LevelWarn
+	case "ERROR":
+		return slog.LevelError
+	}
+
+	return slog.LevelDebug
 }

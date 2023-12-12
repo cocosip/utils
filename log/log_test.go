@@ -1,6 +1,10 @@
 package log
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"log/slog"
+	"testing"
+)
 
 func TestNewFileLogger(t *testing.T) {
 	_ = NewFileLogger(
@@ -14,4 +18,11 @@ func TestNewFileLogger(t *testing.T) {
 	)
 
 	t.Log("create new file logger success")
+}
+
+func TestGetSlogLevel(t *testing.T) {
+	s1 := "Debug"
+	assert.Equal(t, slog.LevelDebug, GetSlogLevel(s1))
+	s2 := "error"
+	assert.Equal(t, slog.LevelError, GetSlogLevel(s2))
 }
