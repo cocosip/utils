@@ -120,3 +120,11 @@ func (d *DistributeId) tilNextMillis(lastTimestamp int64) int64 {
 	return timestamp
 
 }
+
+func NextId() (int64, error) {
+	return Default.NextId()
+}
+
+func NextStringId() (string, error) {
+	return Default.NextStringId()
+}
