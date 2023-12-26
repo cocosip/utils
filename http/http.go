@@ -119,6 +119,6 @@ func ReadResponseJson(response *http.Response, resp interface{}) error {
 
 func CloseResponseBody(response *http.Response) {
 	if err := response.Body.Close(); err != nil {
-		slog.Error("close http response body error -> %s", err.Error())
+		slog.Error("close http response body error -> %s", err.Error(), "url", response.Request.URL.String())
 	}
 }
