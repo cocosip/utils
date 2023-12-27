@@ -7,12 +7,17 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 )
 
 var (
 	DefaultHttpClientTimeout = time.Second * 100
+	DefaultHttpSuccessStates = []int{
+		http.StatusOK,
+		http.StatusNoContent,
+	}
 )
 
 type TransportOption func(transport *http.Transport) error
@@ -107,17 +112,27 @@ func ReadResponseJson(response *http.Response, resp interface{}) error {
 		return err
 	}
 
-	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusNoContent {
+	if !slices.Contains(DefaultHttpSuccessStates, response.StatusCode) {
 		return fmt.Errorf("return status code = %d; body = %s", response.StatusCode, string(b))
 	}
-
 	if err = json.Unmarshal(b, resp); err != nil {
 		return fmt.Errorf("unmarshal error = %s; body = %s", err, string(b))
 	}
 	return nil
 }
 
-func CloseResponseBody(response *http.Response) {
+func CheckResponse(response *http.Response) (bool, error) {
+	if !slices.Contains(DefaultHttpSuccessStates, response.StatusCode) {
+		b, err := io.ReadAll(response.Body)
+		if err != nil {
+			return false, fmt.Errorf("return status code = %d; read response body = %s", response.StatusCode, err.Error())
+		}
+		return false, fmt.Errorf("return status code = %d; body = %s", response.StatusCode, string(b))
+	}
+	return true, nil
+}
+
+func CloseResponse(response *http.Response) {
 	if err := response.Body.Close(); err != nil {
 		slog.Error("close http response body error -> %s", err.Error(), "url", response.Request.URL.String())
 	}
