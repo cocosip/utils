@@ -7,17 +7,12 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
-	"slices"
 	"strings"
 	"time"
 )
 
 var (
 	DefaultHttpClientTimeout = time.Second * 100
-	DefaultHttpSuccessStates = []int{
-		http.StatusOK,
-		http.StatusNoContent,
-	}
 )
 
 type TransportOption func(transport *http.Transport) error
@@ -106,14 +101,13 @@ func GetForwardedFor(header http.Header) []string {
 	return hosts
 }
 
-func ReadResponseJson(response *http.Response, resp interface{}) error {
+func ReadResponseAsJson(response *http.Response, resp interface{}) error {
+	if err := EnsureSuccessStatusCode(response); err != nil {
+		return err
+	}
 	b, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
-	}
-
-	if !slices.Contains(DefaultHttpSuccessStates, response.StatusCode) {
-		return fmt.Errorf("return status code = %d; body = %s", response.StatusCode, string(b))
 	}
 	if err = json.Unmarshal(b, resp); err != nil {
 		return fmt.Errorf("unmarshal error = %s; body = %s", err, string(b))
@@ -121,19 +115,38 @@ func ReadResponseJson(response *http.Response, resp interface{}) error {
 	return nil
 }
 
-func CheckResponse(response *http.Response) (bool, error) {
-	if !slices.Contains(DefaultHttpSuccessStates, response.StatusCode) {
-		b, err := io.ReadAll(response.Body)
-		if err != nil {
-			return false, fmt.Errorf("return status code = %d; read response body = %s", response.StatusCode, err.Error())
-		}
-		return false, fmt.Errorf("return status code = %d; body = %s", response.StatusCode, string(b))
+func ReadResponseAsBytes(response *http.Response) ([]byte, error) {
+	if err := EnsureSuccessStatusCode(response); err != nil {
+		return nil, err
 	}
-	return true, nil
+	b, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }
 
-func CloseResponse(response *http.Response) {
+func EnsureSuccessStatusCode(response *http.Response) error {
+	if response.StatusCode >= 200 && response.StatusCode <= 299 {
+		return nil
+	}
+	b, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("return status code = %d; read response body = %s", response.StatusCode, err.Error())
+	}
+	return fmt.Errorf("return status code = %d; body = %s", response.StatusCode, string(b))
+}
+
+func CloseResponse(response *http.Response, callbacks ...func(error)) {
 	if err := response.Body.Close(); err != nil {
-		slog.Error("close http response body error -> %s", err.Error(), "url", response.Request.URL.String())
+		if len(callbacks) > 0 {
+			for _, callback := range callbacks {
+				if callback != nil {
+					callback(err)
+				}
+			}
+		} else {
+			slog.Error("close http response body error -> %s", err.Error(), "url", response.Request.URL.String())
+		}
 	}
 }
