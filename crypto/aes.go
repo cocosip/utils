@@ -30,9 +30,9 @@ func NewAES() *AESCrypto {
 }
 
 // WithKey , 16, 24, 32.  AES-128, AES-192, AES-256.
-func (c *AESCrypto) WithKey(key []byte) (*AESCrypto, error) {
+func (c *AESCrypto) WithKey(key []byte) *AESCrypto {
 	c.key = key
-	return c, nil
+	return c
 }
 
 func (c *AESCrypto) WithIV(iv []byte) *AESCrypto {
