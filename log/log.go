@@ -30,9 +30,9 @@ func newDefaultConfig() *Config {
 	}
 }
 
-type LogOption func(c *Config)
+type Option func(c *Config)
 
-func WithConfig(cfg *Config) LogOption {
+func WithConfig(cfg *Config) Option {
 	return func(c *Config) {
 		c.Filename = cfg.Filename
 		c.MaxSize = cfg.MaxSize
@@ -44,49 +44,49 @@ func WithConfig(cfg *Config) LogOption {
 	}
 }
 
-func WithFilename(filename string) LogOption {
+func WithFilename(filename string) Option {
 	return func(config *Config) {
 		config.Filename = filename
 	}
 }
 
-func WithMaxSize(maxSize int) LogOption {
+func WithMaxSize(maxSize int) Option {
 	return func(c *Config) {
 		c.MaxSize = maxSize
 	}
 }
 
-func WithMaxBackups(maxBackups int) LogOption {
+func WithMaxBackups(maxBackups int) Option {
 	return func(c *Config) {
 		c.MaxBackups = maxBackups
 	}
 }
 
-func WithMaxAge(maxAge int) LogOption {
+func WithMaxAge(maxAge int) Option {
 	return func(c *Config) {
 		c.MaxAge = maxAge
 	}
 }
 
-func WithLocalTime(localTime bool) LogOption {
+func WithLocalTime(localTime bool) Option {
 	return func(c *Config) {
 		c.LocalTime = localTime
 	}
 }
 
-func WithCompress(compress bool) LogOption {
+func WithCompress(compress bool) Option {
 	return func(c *Config) {
 		c.Compress = compress
 	}
 }
 
-func WithStdout(stdout bool) LogOption {
+func WithStdout(stdout bool) Option {
 	return func(c *Config) {
 		c.Stdout = stdout
 	}
 }
 
-func NewFileLogger(opts ...LogOption) io.Writer {
+func NewFileLogger(opts ...Option) io.Writer {
 	c := newDefaultConfig()
 	for _, fn := range opts {
 		fn(c)
