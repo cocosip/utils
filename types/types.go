@@ -1,4 +1,4 @@
-package tp
+package types
 
 import (
 	"reflect"

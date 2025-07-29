@@ -127,7 +127,7 @@ func ReadResponseAsBytes(response *http.Response) ([]byte, error) {
 }
 
 func EnsureSuccessStatusCode(response *http.Response) error {
-	if response.StatusCode >= 200 && response.StatusCode <= 299 {
+	if response.StatusCode >= 200 && response.StatusCode <= 399 {
 		return nil
 	}
 	b, err := io.ReadAll(response.Body)
