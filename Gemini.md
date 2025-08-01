@@ -1,64 +1,64 @@
-# Gemini Project Configuration for go-utils
+# go-utils 的 Gemini 项目配置
 
-This document outlines the project-specific guidelines and commands for the `go-utils` library. Adhering to these standards ensures code quality, consistency, and maintainability.
+本文档概述了 `go-utils` 库的项目特定指南和命令。遵守这些标准可确保代码质量、一致性和可维护性。
 
-## 1. Project Overview
+## 1. 项目概览
 
-This is a Go utilities library containing various helper functions and modules for common development tasks, including cryptography, database interactions, logging, and more.
+这是一个 Go 语言的工具库，包含用于常见开发任务的各种辅助函数和模块，包括加密、数据库交互、日志记录等。
 
-## 2. Technical Details
+## 2. 技术细节
 
-- **Go Version**: 1.24
-- **Dependency Management**: Go Modules
+- **Go 版本**: 1.24
+- **依赖管理**: Go Modules
 
-## 3. Development Workflow
+## 3. 开发工作流程
 
-Follow these steps when making changes to the codebase.
+在修改代码库时，请遵循以下步骤。
 
-### 3.1. Code Formatting
+### 3.1. 代码格式化
 
-All Go code **MUST** be formatted using `gofmt`. Before committing any changes, run the following command from the project root to format all files:
+所有 Go 代码**必须**使用 `gofmt` 进行格式化。在提交任何更改之前，从项目根目录运行以下命令，仅格式化您已更改或添加的文件：
 
 ```bash
-gofmt -w .
+gofmt -w <path-to-your-changed-file-1.go> <path-to-your-changed-file-2.go>
 ```
 
-### 3.2. Static Analysis
+### 3.2. 静态分析
 
-Run `go vet` to catch potential errors and suspicious code constructs.
+运行 `go vet` 以捕获潜在的错误和可疑的代码结构。
 
 ```bash
 go vet ./...
 ```
 
-### 3.3. Dependency Management
+### 3.3. 依赖管理
 
-After adding or removing a dependency, or updating the Go version, tidy the `go.mod` and `go.sum` files:
+在添加或删除依赖项，或更新 Go 版本后，整理 `go.mod` 和 `go.sum` 文件：
 
 ```bash
 go mod tidy
 ```
 
-### 3.4. Running Tests
+### 3.4. 运行测试
 
-All new features and bug fixes **MUST** be accompanied by corresponding unit tests. Ensure all tests pass before submitting changes.
+所有新功能和错误修复**必须**附带相应的单元测试。在提交更改之前，请确保所有测试都通过。
 
-To run all tests in the project, use the following command:
+要运行项目中的所有测试，请使用以下命令：
 
 ```bash
 go test -v ./...
 ```
 
-## 4. Committing Changes
+## 4. 提交更改
 
-Commit messages should be clear and follow a consistent format. A good practice is to reference the package being changed.
+提交消息应清晰并遵循一致的格式。一个好的做法是引用正在更改的包。
 
-**Format:**
+**格式：**
 `<type>(<scope>): <subject>`
 
-**Examples:**
+**示例：**
 
-- `feat(crypto): Add support for AES-GCM encryption`
-- `fix(http): Resolve issue with request timeouts`
-- `docs(readme): Update usage instructions for the snowflake package`
-- `test(util): Add unit tests for new slice helper functions`
+- `feat(crypto): 添加对 AES-GCM 加密的支持`
+- `fix(http): 解决请求超时问题`
+- `docs(readme): 更新 snowflake 包的使用说明`
+- `test(util): 为新的切片辅助函数添加单元测试`
