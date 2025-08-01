@@ -1,10 +1,11 @@
 package sm
 
 import (
+	"bytes"
 	"crypto/rand"
 	"testing"
 
-	"github.com/tjfoc/gmsm/sm2"
+	gmsm_sm2 "github.com/tjfoc/gmsm/sm2"
 )
 
 // TestSM2Crypto covers the core functionalities: key generation, encryption/decryption, and signing/verification.
@@ -24,40 +25,40 @@ func TestSM2Crypto(t *testing.T) {
 	// Test with C1C2C3 mode
 	t.Run("EncryptDecrypt_C1C2C3", func(t *testing.T) {
 		// Encrypt
-		ciphertextHex, err := EncryptSM2(publicKeyHex, plaintext, rand.Reader, sm2.C1C2C3)
+		ciphertextHex, err := EncryptSM2(publicKeyHex, plaintext, rand.Reader, gmsm_sm2.C1C2C3)
 		if err != nil {
 			t.Fatalf("Encryption failed with C1C2C3 mode: %v", err)
 		}
 
 		// Decrypt
-		decryptedText, err := DecryptSM2(privateKeyHex, ciphertextHex, sm2.C1C2C3)
+		decryptedText, err := DecryptSM2(privateKeyHex, ciphertextHex, gmsm_sm2.C1C2C3)
 		if err != nil {
 			t.Fatalf("Decryption failed with C1C2C3 mode: %v", err)
 		}
 
 		// Verify
-		if string(plaintext) != decryptedText {
-			t.Errorf("Decrypted text does not match original plaintext. got: %s, want: %s", decryptedText, string(plaintext))
+		if !bytes.Equal(plaintext, decryptedText) {
+			t.Errorf("Decrypted text does not match original plaintext. got: %s, want: %s", decryptedText, plaintext)
 		}
 	})
 
 	// Test with C1C3C2 mode
 	t.Run("EncryptDecrypt_C1C3C2", func(t *testing.T) {
 		// Encrypt
-		ciphertextHex, err := EncryptSM2(publicKeyHex, plaintext, rand.Reader, sm2.C1C3C2)
+		ciphertextHex, err := EncryptSM2(publicKeyHex, plaintext, rand.Reader, gmsm_sm2.C1C3C2)
 		if err != nil {
 			t.Fatalf("Encryption failed with C1C3C2 mode: %v", err)
 		}
 
 		// Decrypt
-		decryptedText, err := DecryptSM2(privateKeyHex, ciphertextHex, sm2.C1C3C2)
+		decryptedText, err := DecryptSM2(privateKeyHex, ciphertextHex, gmsm_sm2.C1C3C2)
 		if err != nil {
 			t.Fatalf("Decryption failed with C1C3C2 mode: %v", err)
 		}
 
 		// Verify
-		if string(plaintext) != decryptedText {
-			t.Errorf("Decrypted text does not match original plaintext. got: %s, want: %s", decryptedText, string(plaintext))
+		if !bytes.Equal(plaintext, decryptedText) {
+			t.Errorf("Decrypted text does not match original plaintext. got: %s, want: %s", decryptedText, plaintext)
 		}
 	})
 
@@ -126,9 +127,23 @@ func TestErrorCases(t *testing.T) {
 	})
 
 	t.Run("InvalidPrivateKey", func(t *testing.T) {
-		_, err := DecryptSM2("invalid-hex-key", "dummyciphertext", sm2.C1C2C3)
+		_, err := DecryptSM2("invalid-hex-key", "dummyciphertext", gmsm_sm2.C1C2C3)
 		if err == nil {
 			t.Error("Expected an error for an invalid private key, but got nil")
+		}
+	})
+
+	t.Run("InvalidCiphertextFormat", func(t *testing.T) {
+		_, err := DecryptSM2(privateKeyHex, "not-a-hex-string", gmsm_sm2.C1C2C3)
+		if err == nil {
+			t.Error("Expected an error for invalid hex ciphertext, but got nil")
+		}
+	})
+
+	t.Run("InvalidSignatureFormat", func(t *testing.T) {
+		_, err := VerifySM2(publicKeyHex, []byte("msg"), "not-a-hex-string")
+		if err == nil {
+			t.Error("Expected an error for invalid hex signature, but got nil")
 		}
 	})
 }

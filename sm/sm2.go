@@ -1,4 +1,4 @@
-// Package sm provides SM2 cryptographic functionalities, including key generation, encryption, decryption, signing, and verification.
+// Package sm provides SM2, SM3, and SM4 cryptographic functionalities.
 // It leverages the 'github.com/tjfoc/gmsm' library.
 package sm
 
@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/tjfoc/gmsm/sm2"
-	"github.com/tjfoc/gmsm/x509"
+	gmsm_sm2 "github.com/tjfoc/gmsm/sm2"
+	gmsm_x509 "github.com/tjfoc/gmsm/x509"
 )
 
 // NewSM2Key generates a new SM2 private and public key pair.
@@ -19,12 +19,12 @@ func NewSM2Key(random io.Reader) (privateKeyHex string, publicKeyHex string, err
 	if random == nil {
 		random = rand.Reader
 	}
-	priv, err := sm2.GenerateKey(random)
+	priv, err := gmsm_sm2.GenerateKey(random)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to generate SM2 key: %w", err)
 	}
 	// Convert private and public keys to hex-encoded strings.
-	return x509.WritePrivateKeyToHex(priv), x509.WritePublicKeyToHex(&priv.PublicKey), nil
+	return gmsm_x509.WritePrivateKeyToHex(priv), gmsm_x509.WritePublicKeyToHex(&priv.PublicKey), nil
 }
 
 // EncryptSM2 encrypts plaintext using the SM2 public key.
@@ -34,7 +34,7 @@ func NewSM2Key(random io.Reader) (privateKeyHex string, publicKeyHex string, err
 // `mode` specifies the encryption mode: sm2.C1C2C3 or sm2.C1C3C2.
 // It returns the hex-encoded ciphertext.
 func EncryptSM2(pub string, plaintext []byte, random io.Reader, mode int) (ciphertextHex string, err error) {
-	pubK, err := x509.ReadPublicKeyFromHex(pub)
+	pubK, err := gmsm_x509.ReadPublicKeyFromHex(pub)
 	if err != nil {
 		return "", fmt.Errorf("failed to read public key from hex: %w", err)
 	}
@@ -43,12 +43,12 @@ func EncryptSM2(pub string, plaintext []byte, random io.Reader, mode int) (ciphe
 		random = rand.Reader
 	}
 
-	if mode != sm2.C1C2C3 && mode != sm2.C1C3C2 {
+	if mode != gmsm_sm2.C1C2C3 && mode != gmsm_sm2.C1C3C2 {
 		return "", fmt.Errorf("unsupported SM2 encryption mode: %d", mode)
 	}
 
 	// Encrypt the plaintext using the specified mode.
-	cipherBuf, err := sm2.Encrypt(pubK, plaintext, random, mode) // plaintext is now []byte
+	cipherBuf, err := gmsm_sm2.Encrypt(pubK, plaintext, random, mode) // plaintext is now []byte
 	if err != nil {
 		return "", fmt.Errorf("failed to encrypt data: %w", err)
 	}
@@ -59,28 +59,28 @@ func EncryptSM2(pub string, plaintext []byte, random io.Reader, mode int) (ciphe
 // `priv` is the hex-encoded SM2 private key.
 // `ciphertextHex` is the hex-encoded encrypted data.
 // `mode` specifies the decryption mode: sm2.C1C2C3 or sm2.C1C3C2.
-// It returns the original plaintext as a string.
-func DecryptSM2(priv string, ciphertextHex string, mode int) (plaintext string, err error) {
-	privK, err := x509.ReadPrivateKeyFromHex(priv)
+// It returns the original plaintext as a byte slice.
+func DecryptSM2(priv string, ciphertextHex string, mode int) (plaintext []byte, err error) {
+	privK, err := gmsm_x509.ReadPrivateKeyFromHex(priv)
 	if err != nil {
-		return "", fmt.Errorf("failed to read private key from hex: %w", err)
+		return nil, fmt.Errorf("failed to read private key from hex: %w", err)
 	}
 
-	ciphertext, err := hex.DecodeString(ciphertextHex)
+	ciphertextBytes, err := hex.DecodeString(ciphertextHex)
 	if err != nil {
-		return "", fmt.Errorf("failed to decode ciphertext from hex: %w", err)
+		return nil, fmt.Errorf("failed to decode ciphertext from hex: %w", err)
 	}
 
-	if mode != sm2.C1C2C3 && mode != sm2.C1C3C2 {
-		return "", fmt.Errorf("unsupported SM2 decryption mode: %d", mode)
+	if mode != gmsm_sm2.C1C2C3 && mode != gmsm_sm2.C1C3C2 {
+		return nil, fmt.Errorf("unsupported SM2 decryption mode: %d", mode)
 	}
 
 	// Decrypt the ciphertext using the specified mode.
-	plainBuf, err := sm2.Decrypt(privK, ciphertext, mode)
+	plainBuf, err := gmsm_sm2.Decrypt(privK, ciphertextBytes, mode)
 	if err != nil {
-		return "", fmt.Errorf("failed to decrypt data: %w", err)
+		return nil, fmt.Errorf("failed to decrypt data: %w", err)
 	}
-	return string(plainBuf), nil
+	return plainBuf, nil
 }
 
 // SignSM2 signs a message using the SM2 private key.
@@ -89,7 +89,7 @@ func DecryptSM2(priv string, ciphertextHex string, mode int) (plaintext string, 
 // `random` is an `io.Reader` for cryptographic randomness; if nil, `crypto/rand.Reader` is used.
 // It returns the hex-encoded signature.
 func SignSM2(priv string, msg []byte, random io.Reader) (signatureHex string, err error) {
-	privK, err := x509.ReadPrivateKeyFromHex(priv)
+	privK, err := gmsm_x509.ReadPrivateKeyFromHex(priv)
 	if err != nil {
 		return "", fmt.Errorf("failed to read private key from hex for signing: %w", err)
 	}
@@ -112,7 +112,7 @@ func SignSM2(priv string, msg []byte, random io.Reader) (signatureHex string, er
 // `signatureHex` is the hex-encoded signature data.
 // It returns true if the signature is valid, false otherwise, and an error if any issue occurs during verification.
 func VerifySM2(pub string, msg []byte, signatureHex string) (isValid bool, err error) {
-	pubK, err := x509.ReadPublicKeyFromHex(pub)
+	pubK, err := gmsm_x509.ReadPublicKeyFromHex(pub)
 	if err != nil {
 		return false, fmt.Errorf("failed to read public key from hex for verification: %w", err)
 	}

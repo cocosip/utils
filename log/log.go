@@ -32,15 +32,9 @@ func newDefaultConfig() *Config {
 
 type Option func(c *Config)
 
-func WithConfig(cfg *Config) Option {
+func WithConfig(cfg Config) Option {
 	return func(c *Config) {
-		c.Filename = cfg.Filename
-		c.MaxSize = cfg.MaxSize
-		c.MaxBackups = cfg.MaxBackups
-		c.MaxAge = cfg.MaxAge
-		c.LocalTime = cfg.LocalTime
-		c.Compress = cfg.Compress
-		c.Stdout = cfg.Stdout
+		*c = cfg
 	}
 }
 
@@ -86,12 +80,12 @@ func WithStdout(stdout bool) Option {
 	}
 }
 
-func NewFileLogger(opts ...Option) io.Writer {
+func NewFileLogger(opts ...Option) (*lumberjack.Logger, io.Writer) {
 	c := newDefaultConfig()
 	for _, fn := range opts {
 		fn(c)
 	}
-	out := &lumberjack.Logger{
+	roller := &lumberjack.Logger{
 		Filename:   c.Filename,
 		MaxSize:    c.MaxSize,
 		MaxBackups: c.MaxBackups,
@@ -101,9 +95,9 @@ func NewFileLogger(opts ...Option) io.Writer {
 	}
 
 	if c.Stdout {
-		return io.MultiWriter(os.Stdout, out)
+		return roller, io.MultiWriter(os.Stdout, roller)
 	}
-	return out
+	return roller, roller
 }
 
 func newDefaultHandlerOptions() *slog.HandlerOptions {
@@ -127,6 +121,12 @@ func NewSlogJsonLogger(w io.Writer, opts ...func(*slog.HandlerOptions)) *slog.Lo
 		fn(o)
 	}
 	return slog.New(slog.NewJSONHandler(w, o))
+}
+
+func WithHandlerOptions(opts slog.HandlerOptions) func(*slog.HandlerOptions) {
+	return func(o *slog.HandlerOptions) {
+		*o = opts
+	}
 }
 
 func GetSlogLevel(s string) slog.Level {
