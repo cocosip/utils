@@ -1,87 +1,67 @@
 package util
 
 import (
-	"github.com/stretchr/testify/assert"
-	"sort"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestContains(t *testing.T) {
-	s := []string{
-		"a",
-		"b",
-		"c",
-	}
+func TestDistinct(t *testing.T) {
+	t.Run("Integer Slice", func(t *testing.T) {
+		input := []int{1, 2, 5, 2, 3, 5, 4, 2, 4, 6}
+		expected := []int{1, 2, 5, 3, 4, 6}
+		result := Distinct(input)
+		assert.Equal(t, expected, result, "Distinct for integers should remove duplicates")
+	})
 
-	v1 := Contains(s, "c")
-	assert.Truef(t, v1, "test contain should contain c ")
+	t.Run("String Slice", func(t *testing.T) {
+		input := []string{"abc", "def", "qwe", "abc"}
+		expected := []string{"abc", "def", "qwe"}
+		result := Distinct(input)
+		assert.Equal(t, expected, result, "Distinct for strings should remove duplicates")
+	})
 
-	v2 := Contains(s, "d")
-	assert.Falsef(t, v2, "test contain should not contain d")
-}
+	t.Run("Empty Slice", func(t *testing.T) {
+		var input []int
+		result := Distinct(input)
+		assert.Empty(t, result, "Distinct for an empty slice should return an empty slice")
+	})
 
-func TestDistinctInt(t *testing.T) {
-	s := []int{
-		1,
-		2,
-		5,
-		2,
-		3,
-		5,
-		4,
-		2,
-		4,
-		6,
-	}
-
-	ss := Distinct(s)
-	assert.Equal(t, 6, len(ss), "count not equal 6")
-	sort.Ints(s)
-
-	assert.Equal(t, 1, ss[0], "the first is not 1")
-}
-
-func TestDistinctString(t *testing.T) {
-	s := []string{
-		"abc",
-		"def",
-		"qwe",
-		"abc",
-	}
-
-	ss := Distinct(s)
-	assert.Equal(t, 3, len(ss), "count not equal 3")
-	sort.Strings(s)
-	assert.Equal(t, "abc", ss[0], "the first is not abc")
+	t.Run("Slice with no duplicates", func(t *testing.T) {
+		input := []int{1, 2, 3, 4, 5}
+		result := Distinct(input)
+		assert.Equal(t, input, result, "Distinct for a slice with no duplicates should return the original slice")
+	})
 }
 
 func TestFirstOrDefault(t *testing.T) {
-	s := []string{
-		"a",
-		"b",
-		"c",
-	}
+	t.Run("Slice with elements", func(t *testing.T) {
+		input := []string{"a", "b", "c"}
+		val, ok := FirstOrDefault(input)
+		assert.True(t, ok, "FirstOrDefault should return true for a non-empty slice")
+		assert.Equal(t, "a", val, "FirstOrDefault should return the first element")
+	})
 
-	v, ok := FirstOrDefault(s)
-	assert.True(t, ok, "first or default not ok")
-	assert.Equal(t, "a", v, "first or default value not equal 'a'")
+	t.Run("Empty slice", func(t *testing.T) {
+		var input []int
+		val, ok := FirstOrDefault(input)
+		assert.False(t, ok, "FirstOrDefault should return false for an empty slice")
+		assert.Zero(t, val, "FirstOrDefault should return the zero value for an empty slice")
+	})
 }
 
 func TestLastOrDefault(t *testing.T) {
-	s := []string{
-		"a",
-		"b",
-		"c",
-	}
+	t.Run("Slice with elements", func(t *testing.T) {
+		input := []string{"a", "b", "c"}
+		val, ok := LastOrDefault(input)
+		assert.True(t, ok, "LastOrDefault should return true for a non-empty slice")
+		assert.Equal(t, "c", val, "LastOrDefault should return the last element")
+	})
 
-	v, ok := LastOrDefault(s)
-	assert.True(t, ok, "first or default not ok")
-	assert.Equal(t, "c", v, "first or default value not equal 'c'")
-
-	var s2 []string
-
-	v2, ok := LastOrDefault(s2)
-	assert.False(t, ok, "last or default error")
-	assert.Equal(t, "", v2, "last or default value not equal empty")
-
+	t.Run("Empty slice", func(t *testing.T) {
+		var input []string
+		val, ok := LastOrDefault(input)
+		assert.False(t, ok, "LastOrDefault should return false for an empty slice")
+		assert.Equal(t, "", val, "LastOrDefault should return the zero value for an empty slice")
+	})
 }

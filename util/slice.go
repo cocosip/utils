@@ -1,38 +1,35 @@
+// Package util provides a collection of utility functions.
 package util
 
-type SliceComparableType[T any] comparable
+import "slices"
 
-func Contains[T SliceComparableType[T]](items []T, value T) bool {
-	for i := range items {
-		if items[i] == value {
-			return true
+// Distinct returns a new slice with all unique elements from the input slice.
+// The order of elements in the result is the order of their first appearance in the input.
+// It uses the standard library's slices.Contains function for checking existence.
+func Distinct[T comparable](items []T) []T {
+	var result []T
+	for _, item := range items {
+		if !slices.Contains(result, item) {
+			result = append(result, item)
 		}
 	}
-	return false
+	return result
 }
 
-func Distinct[T SliceComparableType[T]](items []T) []T {
-	var r []T
-	for i := range items {
-		if !Contains(r, items[i]) {
-			r = append(r, items[i])
-		}
-	}
-	return r
-}
-
-func FirstOrDefault[T SliceComparableType[T]](items []T) (T, bool) {
-	var item T
+// FirstOrDefault returns the first element of a slice and true, or a zero value and false if the slice is empty.
+func FirstOrDefault[T any](items []T) (T, bool) {
+	var zero T
 	if len(items) > 0 {
 		return items[0], true
 	}
-	return item, false
+	return zero, false
 }
 
-func LastOrDefault[T SliceComparableType[T]](items []T) (T, bool) {
-	var item T
+// LastOrDefault returns the last element of a slice and true, or a zero value and false if the slice is empty.
+func LastOrDefault[T any](items []T) (T, bool) {
+	var zero T
 	if len(items) > 0 {
 		return items[len(items)-1], true
 	}
-	return item, false
+	return zero, false
 }
