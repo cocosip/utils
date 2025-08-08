@@ -85,3 +85,14 @@ func NewDB(dialector gorm.Dialector, opts ...gorm.Option) (*gorm.DB, error) {
 
 	return conn, nil
 }
+
+// CloseDB closes the underlying sql.DB connection from a gorm.DB instance.
+// db: the gorm.DB instance to close.
+// Returns error if closing fails.
+func CloseDB(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Close()
+}
