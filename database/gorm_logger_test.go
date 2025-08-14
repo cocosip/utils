@@ -5,8 +5,6 @@ import (
 	"os"
 	"testing"
 	"time"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 func TestNewGormLoggerWithSlog(t *testing.T) {

@@ -1,4 +1,4 @@
-package typetools
+package ptrutil
 
 import (
 	"testing"

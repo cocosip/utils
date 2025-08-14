@@ -1,7 +1,7 @@
-// Package http provides utility functions for working with HTTP in Go.
+// Package httpx provides utility functions for working with HTTP in Go.
 // It includes helpers for creating custom HTTP clients, handling responses,
 // and managing headers.
-package http
+package httpx
 
 import (
 	"encoding/json"
