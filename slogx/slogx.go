@@ -10,17 +10,16 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// Config 日志文件配置结构体
+// Config represents the configuration structure for log files.
 // Fields:
-//   - Filename: 日志文件路径
-//   - MaxSize: 单个日志文件最大大小(MB)
-//   - MaxAge: 日志文件最大保存天数
-//   - MaxBackups: 最大备份数量
-//   - LocalTime: 是否使用本地时间
-//   - Compress: 是否压缩历史日志
-//   - Stdout: 是否同时输出到控制台
-// Description: 日志文件滚动与输出配置
-// "Fields description in English for cross-platform compatibility."
+//   - Filename: Path to the log file
+//   - MaxSize: Maximum size of a single log file (MB)
+//   - MaxAge: Maximum number of days to retain log files
+//   - MaxBackups: Maximum number of backup files
+//   - LocalTime: Whether to use local time
+//   - Compress: Whether to compress historical logs
+//   - Stdout: Whether to output to console simultaneously
+// Description: Configuration for log file rotation and output.
 type Config struct {
 	Filename   string `json:"filename" yaml:"filename"` // Log file path
 	MaxSize    int    `json:"maxsize" yaml:"maxsize"`   // Max file size (MB)
